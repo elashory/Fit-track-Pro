@@ -151,6 +151,27 @@ export default function Exercises() {
                       </div>
                     )}
                   </div>
+
+                  {exercise.videoUrl && (
+                    <div className="mt-2 flex justify-center gap-4">
+                      <a 
+                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(exercise.nameEn + ' exercise tutorial')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-zinc-400 hover:text-red-500 transition-colors flex items-center gap-1"
+                      >
+                        {i18n.language === 'ar' ? 'بحث بديل في يوتيوب' : 'Alt YouTube Search'}
+                      </a>
+                      <a 
+                        href={`https://www.google.com/search?q=${encodeURIComponent(exercise.nameEn + ' exercise form tutorial video')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-zinc-400 hover:text-blue-500 transition-colors flex items-center gap-1"
+                      >
+                        {i18n.language === 'ar' ? 'بحث بديل في جوجل' : 'Alt Google Search'}
+                      </a>
+                    </div>
+                  )}
                 </TabsContent>
                 
                 <TabsContent value="3d" className="mt-4">

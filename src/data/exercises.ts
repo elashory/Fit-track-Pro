@@ -248,7 +248,7 @@ export const exercises = [
     nameAr: 'رفرفة أرجل خلفي نائم',
     category: 'Legs',
     sources: [],
-    videoUrl: 'https://www.youtube.com/embed/n5-K119Zk04',
+    videoUrl: '',
     model3dUrl: '/models/dummy.gltf',
     instructionsEn: 'Lie face down on the leg curl machine. Curl your legs up as far as possible, then lower them back down slowly.',
     instructionsAr: 'استلقِ على وجهك على جهاز الرفرفة الخلفي. اطوِ ساقيك لأعلى قدر الإمكان، ثم أنزلهما ببطء.',
