@@ -1,0 +1,50 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile and gamification stats",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "level": { "type": "number", "description": "Current gamification level" },
+        "xp": { "type": "number", "description": "Current experience points" },
+        "createdAt": { "type": "timestamp" }
+      },
+      "required": ["uid", "email", "level", "xp", "createdAt"]
+    },
+    "DailyLog": {
+      "title": "DailyLog",
+      "description": "Daily fitness and nutrition log",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Owner UID" },
+        "date": { "type": "string", "description": "Date in YYYY-MM-DD format" },
+        "weight": { "type": "number", "description": "Weight in kg" },
+        "protein": { "type": "number", "description": "Protein in grams" },
+        "carbs": { "type": "number", "description": "Carbs in grams" },
+        "fats": { "type": "number", "description": "Fats in grams" },
+        "waist": { "type": "number", "description": "Waist measurement in cm" },
+        "waistBellyButton": { "type": "number", "description": "Waist at belly button in cm" },
+        "rArm": { "type": "number", "description": "Right arm measurement in cm" },
+        "lArm": { "type": "number", "description": "Left arm measurement in cm" },
+        "rLeg": { "type": "number", "description": "Right leg measurement in cm" },
+        "lLeg": { "type": "number", "description": "Left leg measurement in cm" },
+        "createdAt": { "type": "timestamp" }
+      },
+      "required": ["uid", "date", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profiles"
+    },
+    "/logs/{logId}": {
+      "schema": { "$ref": "#/entities/DailyLog" },
+      "description": "Daily logs for all users"
+    }
+  }
+}

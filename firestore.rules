@@ -1,0 +1,98 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+    
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == request.auth.uid;
+    }
+    
+    function uidNotModified() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == resource.data.uid;
+    }
+    
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+    
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    
+    function isValidUser(data) {
+      return hasOnlyAllowedFields(['uid', 'email', 'displayName', 'photoURL', 'level', 'xp', 'createdAt']) &&
+             data.uid is string && data.uid.size() > 0 && data.uid.size() < 100 &&
+             data.email is string && isValidEmail(data.email) &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() < 100)) &&
+             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() < 500)) &&
+             data.level is number && data.level >= 1 &&
+             data.xp is number && data.xp >= 0 &&
+             data.createdAt is timestamp;
+    }
+    
+    function isValidLog(data) {
+      return hasOnlyAllowedFields(['uid', 'date', 'weight', 'protein', 'carbs', 'fats', 'waist', 'waistBellyButton', 'rArm', 'lArm', 'rLeg', 'lLeg', 'createdAt']) &&
+             data.uid is string && data.uid.size() > 0 && data.uid.size() < 100 &&
+             data.date is string && isValidDateString(data.date) &&
+             (!('weight' in data) || (data.weight is number && data.weight >= 0)) &&
+             (!('protein' in data) || (data.protein is number && data.protein >= 0)) &&
+             (!('carbs' in data) || (data.carbs is number && data.carbs >= 0)) &&
+             (!('fats' in data) || (data.fats is number && data.fats >= 0)) &&
+             (!('waist' in data) || (data.waist is number && data.waist >= 0)) &&
+             (!('waistBellyButton' in data) || (data.waistBellyButton is number && data.waistBellyButton >= 0)) &&
+             (!('rArm' in data) || (data.rArm is number && data.rArm >= 0)) &&
+             (!('lArm' in data) || (data.lArm is number && data.lArm >= 0)) &&
+             (!('rLeg' in data) || (data.rLeg is number && data.rLeg >= 0)) &&
+             (!('lLeg' in data) || (data.lLeg is number && data.lLeg >= 0)) &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && uidUnchanged();
+      allow update: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && uidNotModified() && request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    match /logs/{logId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && isValidLog(request.resource.data) && uidUnchanged();
+      allow update: if isAuthenticated() && isDocOwner() && isValidLog(request.resource.data) && uidNotModified() && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isDocOwner();
+    }
+
+    match /workout_logs/{logId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update: if isAuthenticated() && isDocOwner() && request.resource.data.uid == resource.data.uid;
+      allow delete: if isDocOwner();
+    }
+  }
+}
