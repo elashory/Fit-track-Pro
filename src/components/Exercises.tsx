@@ -12,6 +12,10 @@ const ModelViewerWrapper = ({ src, alt }: { src: string, alt: string }) => {
   const [modelExists, setModelExists] = useState<boolean | null>(null);
 
   useEffect(() => {
+    if (!src) {
+      setModelExists(false);
+      return;
+    }
     fetch(src, { method: 'HEAD' })
       .then(res => {
         const contentType = res.headers.get('content-type');
@@ -109,16 +113,43 @@ export default function Exercises() {
                 </TabsList>
                 
                 <TabsContent value="video" className="mt-4">
-                  <div className="aspect-video rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-900">
-                    <iframe 
-                      width="100%" 
-                      height="100%" 
-                      src={exercise.videoUrl} 
-                      title={exercise.nameEn} 
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                      allowFullScreen
-                    ></iframe>
+                  <div className="aspect-video rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 relative">
+                    {exercise.videoUrl ? (
+                      <iframe 
+                        width="100%" 
+                        height="100%" 
+                        src={exercise.videoUrl} 
+                        title={exercise.nameEn} 
+                        frameBorder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowFullScreen
+                      ></iframe>
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 p-6 text-center bg-zinc-100 dark:bg-zinc-800">
+                        <Play className="w-12 h-12 mb-2 opacity-20" />
+                        <p className="font-medium mb-4">{i18n.language === 'ar' ? 'الفيديو غير متوفر' : 'Video not available'}</p>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <a 
+                            href={`https://www.youtube.com/results?search_query=${encodeURIComponent(exercise.nameEn + ' exercise tutorial')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+                          >
+                            <Play className="w-4 h-4" />
+                            {i18n.language === 'ar' ? 'ابحث في يوتيوب' : 'Search YouTube'}
+                          </a>
+                          <a 
+                            href={`https://www.google.com/search?q=${encodeURIComponent(exercise.nameEn + ' exercise form tutorial video')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+                          >
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="css-i6dzq1"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                            {i18n.language === 'ar' ? 'ابحث في جوجل' : 'Search Google'}
+                          </a>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </TabsContent>
                 
